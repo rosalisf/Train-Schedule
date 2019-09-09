@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Train Schedule</title>
+
+    <!-- Added Moment JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/6.6.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.6.0/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">Train Schedule</h1>
+        <p class="lead">
+          This is a modified jumbotron that occupies the entire horizontal space
+          of its parent.
+        </p>
+      </div>
+    </div>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">First</th>
+          <th scope="col">Last</th>
+          <th scope="col">Handle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">1</th>
+          <td>Mark</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <form>
+      <div class="form-group">
+        <label for="exampleInputEmail1">Train Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="trainname"
+          aria-describedby="trainname"
+          placeholder="Train Name"
+        />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Destination</label>
+        <input
+          type="text"
+          class="form-control"
+          id="destination"
+          placeholder="Destination"
+        />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1"
+          >First Train Time (HH:mm - Military Time)</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="traintime"
+          placeholder="Train Time"
+        />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Frequency (min)</label>
+        <input
+          type="number"
+          class="form-control"
+          id="frequency"
+          placeholder="Frequency"
+        />
+      </div>
+      <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <script>
+      $(document).ready(function() {
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+          apiKey: "AIzaSyDvElGqRaRdWvgCFOL6_spcT_B6FlMPNVI",
+          authDomain: "nueva-rosa.firebaseapp.com",
+          databaseURL: "https://nueva-rosa.firebaseio.com",
+          projectId: "nueva-rosa",
+          storageBucket: "",
+          messagingSenderId: "10794966261",
+          appId: "1:10794966261:web:49332dccc9e10c2d"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        const database = firebase.database();
+
+        $(document).on("click", "#submit", function(event) {
+          event.preventDefault();
+
+          let train = {};
+
+          let trainname = $("#trainname")
+            .val()
+            .trim();
+          train.name = trainname;
+
+          let destination = $("#destination")
+            .val()
+            .trim();
+          train.destination = destination;
+
+          let traintime = $("#traintime")
+            .val()
+            .trim();
+          train.time = traintime;
+
+          let frequency = $("#frequency")
+            .val()
+            .trim();
+          train.frequency = frequency;
+
+          database.ref("Train Schedule").push(train);
+        });
+        // Assume the following situations.
+
+        // (TEST 1)
+        // First Train of the Day is 3:00 AM
+        // Assume Train comes every 3 minutes.
+        // Assume the current time is 3:16 AM....
+        // What time would the next train be...? (Use your brain first)
+        // It would be 3:18 -- 2 minutes away
+
+        // (TEST 2)
+        // First Train of the Day is 3:00 AM
+        // Assume Train comes every 7 minutes.
+        // Assume the current time is 3:16 AM....
+        // What time would the next train be...? (Use your brain first)
+        // It would be 3:21 -- 5 minutes away
+
+        // ==========================================================
+
+        // Solved Mathematically
+        // Test case 1:
+        // 16 - 00 = 16
+        // 16 % 3 = 1 (Modulus is the remainder)
+        // 3 - 1 = 2 minutes away
+        // 2 + 3:16 = 3:18
+
+        // Solved Mathematically
+        // Test case 2:
+        // 16 - 00 = 16
+        // 16 % 7 = 2 (Modulus is the remainder)
+        // 7 - 2 = 5 minutes away
+        // 5 + 3:16 = 3:21
+
+        // Assumptions
+        let tFrequency = 3;
+
+        // Time is 3:30 AM
+        let firstTime = "03:30";
+
+        // First Time (pushed back 1 year to make sure it comes before current time)
+        let firstTimeConverted = moment(firstTime, "HH:mm").subtract(
+          1,
+          "years"
+        );
+        console.log(firstTimeConverted);
+
+        // Current Time
+        let currentTime = moment();
+        console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+        // Difference between the times
+        let diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+        console.log("DIFFERENCE IN TIME: " + diffTime);
+
+        // Time apart (remainder)
+        let tRemainder = diffTime % tFrequency;
+        console.log(tRemainder);
+
+        // Minute Until Train
+        let tMinutesTillTrain = tFrequency - tRemainder;
+        console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+        // Next Train
+        let nextTrain = moment().add(tMinutesTillTrain, "minutes");
+        console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+      });
+    </script>
+  </body>
+</html>
