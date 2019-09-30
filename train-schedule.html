@@ -35,18 +35,17 @@
       <div class="container">
         <h1 class="display-4">Train Schedule</h1>
         <p class="lead">
-          This is a modified jumbotron that occupies the entire horizontal space
-          of its parent.
+          Type in a train schedule and the schedule will show up here.
         </p>
       </div>
     </div>
     <table class="table table-dark">
       <thead>
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+          <th scope="col">Name</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Time</th>
+          <th scope="col">Frequency</th>
         </tr>
       </thead>
       <tbody>
@@ -146,6 +145,11 @@
 
           database.ref("Train Schedule").push(train);
         });
+
+        $("#trainname").append("row");
+        $("#destination").append("row");
+        $("#traintime").append("row");
+        $("#frequency").append("row");
         // Assume the following situations.
 
         // (TEST 1)
